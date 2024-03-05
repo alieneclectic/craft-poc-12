@@ -68,20 +68,6 @@ def generate_example_questions(system_message, context_messages):
     
     return generated_text, context_messages
 
-# CSS
-hide_github_icon = """
-<style>
-header {
-  visibility: hidden;
-}
-</style>
-"""
-st.markdown(hide_github_icon, unsafe_allow_html=True)
-
-# Streamlit interface
-st.title("Chat with Ernie, the Keebler Elf.")
-
-st.image("images/elf.jpg", caption=None, width=300)
 
 # System message and initial context
 system_message = """
@@ -188,41 +174,87 @@ I'm looking for a statement-based response, no questions please.
 
 full_message = system_message + background_story + example_reasons + example_questions + ommit
 
-
 context_messages = [{"role": "system", "content": full_message}]
 
-# Display the system message
-st.write("Hello, Im Ernie Keebler!")
-st.write("We realize you haven’t seen us a lot in the past few years. But we have a good reason: Making cookies is tough. Ask why we weren't there for a specific day, moment or event, and you’ll hear the story why we had to miss it.")
+
+# CSS
+hide_github_icon = """
+<style>
+header {
+  visibility: hidden;
+}
+[data-testid="stImage"] {
+    width: 100%;
+}
+img {
+    display: block;
+    margin: 0 auto;
+}
+.css-zt5igj {
+    text-align: center;
+}
+</style>
+"""
+
+# Set a password for the app
+PASSWORD = os.getenv("APP_PASSWORD", "keeblerelf2024")  # Use your own secure method to set this
+
+# Check if the user is already authenticated in the session
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False  # Initialize the authenticated state to False
+
+if not st.session_state.authenticated:
+    # User is not authenticated, show password input
+    password = st.text_input("Enter password:", type="password", key="password_input")
+
+    if password:
+        if password == PASSWORD:
+            st.session_state.authenticated = True
+            st.experimental_rerun()  # Rerun the script to display the main content
+        else:
+            st.error("Incorrect password. Please try again.")
+else:
+    st.markdown(hide_github_icon, unsafe_allow_html=True)
+
+    # Streamlit interface
+    st.title("Chat with Ernie, the Keebler Elf.")
+
+    st.image("images/elf.png", caption=None, width=250)
+
+    # Display the system message
+    st.write("Hello, Im Ernie Keebler!")
+    st.write("We realize you haven’t seen us a lot in the past few years. But we have a good reason: Making cookies is tough. Ask why we weren't there for a specific day, moment or event, and you’ll hear the story why we had to miss it.")
 
 
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-# Display chat messages from history on app rerun
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-# React to user input
-if prompt := st.chat_input("Why weren't you at my fifth birthday?"):
-    # Display user message in chat message container!
-    st.chat_message("user").markdown(prompt)
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # React to user input
+    if prompt := st.chat_input("Why weren't you at my fifth birthday?"):
+        # Display user message in chat message container!
+        st.chat_message("user").markdown(prompt)
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
 
-    response, context_messages = get_azure_gpt_response(prompt, context_messages)
-    # Display assistant response in chat message container
-    with st.chat_message("assistant"):
-        st.markdown(response)
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        response, context_messages = get_azure_gpt_response(prompt, context_messages)
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            st.markdown(response)
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 
-# Generate example questions based on the system message
-#example_questions, context_messages = generate_example_questions(system_message, context_messages)
+    # Generate example questions based on the system message
+    #example_questions, context_messages = generate_example_questions(system_message, context_messages)
 
-# # Display the example questions
-# st.subheader("Example Questions")
-# st.write(example_questions)
+    # # Display the example questions
+    # st.subheader("Example Questions")
+    # st.write(example_questions)
+        
+        
