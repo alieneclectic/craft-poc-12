@@ -68,6 +68,15 @@ def generate_example_questions(system_message, context_messages):
     
     return generated_text, context_messages
 
+# CSS
+hide_github_icon = """
+<style>
+header {
+  visibility: hidden;
+}
+</style>
+"""
+st.markdown(hide_github_icon, unsafe_allow_html=True)
 
 # Streamlit interface
 st.title("Chat with Ernie, the Keebler Elf.")
