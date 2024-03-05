@@ -27,7 +27,7 @@ def get_azure_gpt_response(prompt, context_messages):
         model="llama-index",  # Specify your deployment name
         messages=context_messages,
         temperature=0.7,
-        max_tokens=800,
+        max_tokens=1000,
         top_p=0.95,
         frequency_penalty=0,
         presence_penalty=0,
