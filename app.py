@@ -178,7 +178,7 @@ context_messages = [{"role": "system", "content": full_message}]
 
 
 # CSS
-hide_github_icon = """
+styles = """
 <style>
 header {
   visibility: hidden;
@@ -195,6 +195,7 @@ img {
 }
 </style>
 """
+st.markdown(styles, unsafe_allow_html=True)
 
 # Set a password for the app
 PASSWORD = os.getenv("APP_PASSWORD", "keeblerelf2024")  # Use your own secure method to set this
@@ -214,9 +215,7 @@ if not st.session_state.authenticated:
         else:
             st.error("Incorrect password. Please try again.")
 else:
-    st.markdown(hide_github_icon, unsafe_allow_html=True)
 
-    # Streamlit interface
     st.title("Chat with Ernie, the Keebler Elf.")
 
     st.image("images/elf.png", caption=None, width=250)
