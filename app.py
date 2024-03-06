@@ -4,6 +4,7 @@ import os
 from openai import AzureOpenAI
 from pathlib import Path
 import gspread
+import json
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Load environment variables from .env file
@@ -203,8 +204,10 @@ st.markdown(styles, unsafe_allow_html=True)
 
 
 # ANALYTICS
+# Load credentials from environment variable
+credentials_json = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name(os.environ['GOOGLE_APPLICATION_CREDENTIALS'], scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_json, scope)
 gs = gspread.authorize(creds)
 
 def send_to_google_sheets(query, response):
@@ -213,8 +216,6 @@ def send_to_google_sheets(query, response):
         sheet.append_row([query, response])
     except Exception as e:
         print(f"An exception occurred: {e}")
-
-#send_to_google_sheets('TEST1', 'TEST2')
    
 # Initialize session storage
 if "messages" not in st.session_state:
