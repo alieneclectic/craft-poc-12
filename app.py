@@ -4,6 +4,7 @@ import os
 from openai import AzureOpenAI
 from pathlib import Path
 import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Load environment variables from .env file
 load_dotenv()
@@ -200,21 +201,29 @@ img {
 st.markdown(styles, unsafe_allow_html=True)
 
 
+
 # ANALYTICS
-def send_to_google_sheets(query):
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+creds = ServiceAccountCredentials.from_json_keyfile_name(os.environ['GOOGLE_APPLICATION_CREDENTIALS'], scope)
+gs = gspread.authorize(creds)
 
-    filepath = Path('service_account.json')
-    gc = gspread.oauth(credentials_filename=filepath)
-    sheet = gc.open('DCO AI Generated').worksheet('sheet1')
-    sheet.append_row([query])
+def send_to_google_sheets(query, response):
+    try:
+        sheet = gs.open('Keebler LLM Analytics').worksheet('sheet1')
+        sheet.append_row([query, response])
+    except Exception as e:
+        print(f"An exception occurred: {e}")
 
+#send_to_google_sheets('TEST1', 'TEST2')
+   
+# Initialize session storage
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if 'authenticated' not in st.session_state:
+    st.session_state.authenticated = False 
 
 # Set a password for the app
-PASSWORD = os.getenv("APP_PASSWORD", "keebler2024")  # Use your own secure method to set this
-
-# Check if the user is already authenticated in the session
-if 'authenticated' not in st.session_state:
-    st.session_state.authenticated = False  # Initialize the authenticated state to False
+PASSWORD = os.getenv("APP_PASSWORD") 
 
 if not st.session_state.authenticated:
     # User is not authenticated, show password input
@@ -229,17 +238,11 @@ if not st.session_state.authenticated:
 else:
 
     st.title("Chat with Ernie, the Keebler Elf.")
-
     st.image("images/elf.png", caption=None, width=250)
 
     # Display the system message
     st.write("Hello, Im Ernie Keebler!")
     st.write("We realize you haven’t seen us a lot in the past few years. But we have a good reason: Making cookies is tough. Ask why we weren't there for a specific day, moment or event, and you’ll hear the story why we had to miss it.")
-
-
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
 
     # Display chat messages from history on app rerun
     for message in st.session_state.messages:
@@ -254,7 +257,9 @@ else:
         st.session_state.messages.append({"role": "user", "content": prompt})
 
         response, context_messages = get_azure_gpt_response(prompt, context_messages)
-        #send_to_google_sheets(prompt)
+
+        send_to_google_sheets(prompt, response)
+
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             st.markdown(response)
