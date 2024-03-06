@@ -242,7 +242,7 @@ else:
     st.image("images/elf.png", caption=None, width=250)
 
     # Display the system message
-    st.write("Hello, Im Ernie Keebler!")
+    st.write("Hello, I'm Ernie Keebler!")
     st.write("We realize you haven’t seen us a lot in the past few years. But we have a good reason: Making cookies is tough. Ask why we weren't there for a specific day, moment or event, and you’ll hear the story why we had to miss it.")
 
     # Display chat messages from history on app rerun
