@@ -2,6 +2,8 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 from openai import AzureOpenAI
+from pathlib import Path
+import gspread
 
 # Load environment variables from .env file
 load_dotenv()
@@ -197,8 +199,18 @@ img {
 """
 st.markdown(styles, unsafe_allow_html=True)
 
+
+# ANALYTICS
+def send_to_google_sheets(query):
+
+    filepath = Path('service_account.json')
+    gc = gspread.oauth(credentials_filename=filepath)
+    sheet = gc.open('DCO AI Generated').worksheet('sheet1')
+    sheet.append_row([query])
+
+
 # Set a password for the app
-PASSWORD = os.getenv("APP_PASSWORD", "keeblerelf2024")  # Use your own secure method to set this
+PASSWORD = os.getenv("APP_PASSWORD", "keebler2024")  # Use your own secure method to set this
 
 # Check if the user is already authenticated in the session
 if 'authenticated' not in st.session_state:
@@ -242,6 +254,7 @@ else:
         st.session_state.messages.append({"role": "user", "content": prompt})
 
         response, context_messages = get_azure_gpt_response(prompt, context_messages)
+        #send_to_google_sheets(prompt)
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
             st.markdown(response)
@@ -256,4 +269,4 @@ else:
     # st.subheader("Example Questions")
     # st.write(example_questions)
         
-        
+    
